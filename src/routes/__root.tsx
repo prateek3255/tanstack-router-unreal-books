@@ -1,4 +1,4 @@
-import { createRootRoute } from "@tanstack/react-router";
+import { createRootRoute, Outlet } from "@tanstack/react-router";
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -13,6 +13,7 @@ function RootComponent() {
           <span className="font-semibold">Unreal Books</span>
         </div>
       </nav>
+      <Outlet />
     </div>
   );
 }
