@@ -22,3 +22,11 @@ export const Spinner = () => {
     </svg>
   );
 };
+
+export const Loader = () => {
+  return (
+    <div className="flex justify-center items-center w-full h-full">
+      <Spinner />
+    </div>
+  );
+}

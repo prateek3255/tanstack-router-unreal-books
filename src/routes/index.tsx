@@ -18,61 +18,36 @@ function Dashboard() {
           </p>
         </div>
         <div className="grid grid-cols-4 gap-6">
-          <Card>
-            <CardContent>
-              <div className="flex justify-between">
-                <div>
-                  <div className="text-xs uppercase text-muted-foreground">
-                    Total Revenue
-                  </div>
-                  <div className="text-2xl font-semibold">$10000</div>
-                </div>
-                <DollarSignIcon className="h-8 w-8 text-gray-500 dark:text-gray-400" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent>
-              <div className="flex justify-between">
-                <div>
-                  <div className="text-xs uppercase text-muted-foreground">
-                    New Customers
-                  </div>
-                  <div className="text-2xl font-semibold">23</div>
-                </div>
-                <UsersIcon className="h-8 w-8 text-gray-500 dark:text-gray-400" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent>
-              <div className="flex justify-between">
-                <div>
-                  <div className="text-xs uppercase text-muted-foreground">
-                    Invoices Paid
-                  </div>
-                  <div className="text-2xl font-semibold">3</div>
-                </div>
-                <CreditCardIcon className="h-8 w-8 text-gray-500 dark:text-gray-400" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent>
-              <div className="flex justify-between">
-                <div>
-                  <div className="text-xs uppercase text-muted-foreground">
-                    Overdue Invoices
-                  </div>
-                  <div className="text-2xl font-semibold">5</div>
-                </div>
-                <ActivityIcon className="h-8 w-8 text-gray-500 dark:text-gray-400" />
-              </div>
-            </CardContent>
-          </Card>
+          <DashboardStatCard title="Total Revenue" value="$1200" icon={DollarSignIcon} />
+          <DashboardStatCard title="New Customers" value="23" icon={UsersIcon} />
+          <DashboardStatCard title="Invoices Paid" value="3" icon={CreditCardIcon} />
+          <DashboardStatCard title="Overdue Invoices" value="5" icon={ActivityIcon} />
         </div>
       </div>
     </main>
+  );
+}
+
+const DashboardStatCard = ({ title, value, icon }: {
+  title: string;
+  value: string | number;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+}) => {
+  const IconComponent = icon;
+  return (
+    <Card>
+      <CardContent>
+        <div className="flex justify-between">
+          <div>
+            <div className="text-xs uppercase text-muted-foreground">
+              {title}
+            </div>
+            <div className="text-2xl font-semibold">{value}</div>
+          </div>
+          <IconComponent className="h-8 w-8 text-gray-500 dark:text-gray-400" />
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
