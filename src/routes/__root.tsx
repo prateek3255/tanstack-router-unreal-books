@@ -1,4 +1,5 @@
-import { createRootRoute, Outlet } from "@tanstack/react-router";
+import { createRootRoute, Outlet, Link } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -7,10 +8,15 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <div className="flex h-full">
-      <nav className="w-64 bg-white p-6">
+      <nav className="min-w-64 bg-white p-6">
         <div className="flex items-center space-x-2">
           <BookIcon className="h-6 w-6" />
           <span className="font-semibold">Unreal Books</span>
+        </div>
+        <div className="mt-6 flex flex-col space-y-1">
+          {/* <Button className={"justify-start"} variant="ghost" asChild>
+            <Link>Dashboard</Link>
+          </Button> */}
         </div>
       </nav>
       <Outlet />
