@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/sales/$invoiceId")({
   component: Invoice,
-  loader: ({ params }) => fetchInvoice(params.invoiceId),
+  loader: ({ params, abortController }) => fetchInvoice(params.invoiceId, abortController),
   notFoundComponent: () => (
     <div className="h-full w-full flex justify-center items-center text-lg font-semibold">
       Invoice not found 😢

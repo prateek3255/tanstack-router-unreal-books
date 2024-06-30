@@ -88,9 +88,12 @@ function Sales() {
               <li key={invoice.id}>
                 <Link
                   className="border-b transition-colors hover:bg-muted/50 flex justify-between px-2 py-3"
-                  // activeProps={{
-                  //   className: "bg-muted",
-                  // }}
+                  to="/sales/$invoiceId"
+                  params={{ invoiceId: invoice.id.toString() }}
+                  activeProps={{
+                    className: "bg-muted",
+                  }}
+                  preload="intent"
                 >
                   <div className="font-semibold flex-[4]">
                     {invoice.customer.name}
