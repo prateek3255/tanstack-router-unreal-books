@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { CardContent, Card } from "@/components/ui/card";
 import {
@@ -14,41 +14,23 @@ import {
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ALLOWED_FILTERS, ALLOWED_SORTS, Filter, Sort } from "@/types";
+import { fetchInvoices } from "@/lib/api";
 
 export const Route = createFileRoute("/sales")({
   component: Sales,
+  loader: () => fetchInvoices(),
+  staleTime: 60 * 1000,
 });
 
 function Sales() {
+  const { invoices, totalAmount, totalInvoices } = Route.useLoaderData();
   return (
     <div key="1" className="flex w-full h-full">
       <main className="flex-[6] bg-white p-6 w-[65%]">
         <h1 className="text-3xl font-bold">Sales</h1>
         <div className="mt-6 grid grid-cols-2 gap-8">
-          <Card className="col-span-1">
-            <CardContent>
-              <div className="flex justify-between items-center">
-                <div>
-                  <div className="text-xs uppercase text-muted-foreground">
-                    Total Invoices
-                  </div>
-                  <div className="text-2xl font-semibold">16</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="col-span-1">
-            <CardContent>
-              <div className="flex justify-between items-center">
-                <div>
-                  <div className="text-xs uppercase text-muted-foreground">
-                    Total Amount
-                  </div>
-                  <div className="text-2xl font-semibold">$1000</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <SalesStatCard title="Total Invoices" value={totalInvoices} />
+          <SalesStatCard title="Total Amount" value={`$${totalAmount}`} />
         </div>
         <div className="mt-6">
           <div className="flex items-center justify-between">
@@ -106,6 +88,9 @@ function Sales() {
               <li key={invoice.id}>
                 <Link
                   className="border-b transition-colors hover:bg-muted/50 flex justify-between px-2 py-3"
+                  // activeProps={{
+                  //   className: "bg-muted",
+                  // }}
                 >
                   <div className="font-semibold flex-[4]">
                     {invoice.customer.name}
@@ -134,10 +119,35 @@ function Sales() {
           </ul>
         </div>
       </main>
-      <aside className="flex-[4] bg-white p-6 border-l border-gray-200 dark:border-gray-800 sticky top-0"></aside>
+      <aside className="flex-[4] bg-white p-6 border-l border-gray-200 dark:border-gray-800 sticky top-0">
+        <Outlet />
+      </aside>
     </div>
   );
 }
+
+const SalesStatCard = ({
+  title,
+  value,
+}: {
+  title: string;
+  value: string | number;
+}) => {
+  return (
+    <Card className="col-span-1">
+      <CardContent>
+        <div className="flex justify-between items-center">
+          <div>
+            <div className="text-xs uppercase text-muted-foreground">
+              {title}
+            </div>
+            <div className="text-2xl font-semibold">{value}</div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 function FilterIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -194,121 +204,3 @@ const SORT_LABELS: Record<Sort, string> = {
   "amount-desc": "Amount (High to Low)",
   "amount-asc": "Amount (Low to High)",
 };
-
-const invoices = [
-  {
-    id: 1,
-    invoiceDate: "2023-12-01",
-    paid: true,
-    total: 1000,
-    customer: {
-      name: "TubThunder",
-      id: 132,
-    },
-    status: "Paid",
-    items: [
-      {
-        id: 1,
-        name: "Pro plan",
-        price: 500,
-      },
-      {
-        id: 2,
-        name: "Stickers",
-        price: 500,
-      },
-    ],
-  },
-  {
-    id: 2,
-    invoiceDate: "2024-03-01",
-    paid: false,
-    total: 2000,
-    customer: {
-      name: "Green Avenue",
-      id: 133,
-    },
-    status: "Overdue",
-    items: [
-      {
-        id: 1,
-        name: "Custom",
-        price: 1000,
-      },
-      {
-        id: 2,
-        name: "TShirts",
-        price: 1000,
-      },
-    ],
-  },
-  {
-    id: 3,
-    invoiceDate: "2024-07-15",
-    paid: false,
-    total: 1500,
-    customer: {
-      name: "Mountain Leaf",
-      id: 134,
-    },
-    status: "Due soon",
-    items: [
-      {
-        id: 1,
-        name: "Premium plan",
-        price: 1200,
-      },
-      {
-        id: 2,
-        name: "Stickers",
-        price: 300,
-      },
-    ],
-  },
-  {
-    id: 4,
-    invoiceDate: "2024-07-20",
-    paid: false,
-    total: 750,
-    customer: {
-      name: "City Scape",
-      id: 135,
-    },
-    status: "Due soon",
-    items: [
-      {
-        id: 1,
-        name: "Basic plan",
-        price: 500,
-      },
-      {
-        id: 2,
-        name: "Mugs",
-        price: 250,
-      },
-    ],
-  },
-  {
-    id: 8,
-    invoiceDate: "2024-01-30",
-    paid: false,
-    total: 850,
-    customer: {
-      name: "GreenFields",
-      id: 139,
-    },
-    status: "Paid",
-    items: [
-      {
-        id: 1,
-        name: "Silver plan",
-        price: 700,
-      },
-      {
-        id: 2,
-        name: "Lanyards",
-        price: 150,
-      },
-    ],
-  },
-];

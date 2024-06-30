@@ -13,6 +13,8 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as SalesImport } from './routes/sales'
 import { Route as IndexImport } from './routes/index'
+import { Route as SalesIndexImport } from './routes/sales.index'
+import { Route as SalesInvoiceIdImport } from './routes/sales.$invoiceId'
 
 // Create/Update Routes
 
@@ -24,6 +26,16 @@ const SalesRoute = SalesImport.update({
 const IndexRoute = IndexImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const SalesIndexRoute = SalesIndexImport.update({
+  path: '/',
+  getParentRoute: () => SalesRoute,
+} as any)
+
+const SalesInvoiceIdRoute = SalesInvoiceIdImport.update({
+  path: '/$invoiceId',
+  getParentRoute: () => SalesRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -44,12 +56,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SalesImport
       parentRoute: typeof rootRoute
     }
+    '/sales/$invoiceId': {
+      id: '/sales/$invoiceId'
+      path: '/$invoiceId'
+      fullPath: '/sales/$invoiceId'
+      preLoaderRoute: typeof SalesInvoiceIdImport
+      parentRoute: typeof SalesImport
+    }
+    '/sales/': {
+      id: '/sales/'
+      path: '/'
+      fullPath: '/sales/'
+      preLoaderRoute: typeof SalesIndexImport
+      parentRoute: typeof SalesImport
+    }
   }
 }
 
 // Create and export the route tree
 
-export const routeTree = rootRoute.addChildren({ IndexRoute, SalesRoute })
+export const routeTree = rootRoute.addChildren({
+  IndexRoute,
+  SalesRoute: SalesRoute.addChildren({ SalesInvoiceIdRoute, SalesIndexRoute }),
+})
 
 /* prettier-ignore-end */
 
@@ -67,7 +96,19 @@ export const routeTree = rootRoute.addChildren({ IndexRoute, SalesRoute })
       "filePath": "index.tsx"
     },
     "/sales": {
-      "filePath": "sales.tsx"
+      "filePath": "sales.tsx",
+      "children": [
+        "/sales/$invoiceId",
+        "/sales/"
+      ]
+    },
+    "/sales/$invoiceId": {
+      "filePath": "sales.$invoiceId.tsx",
+      "parent": "/sales"
+    },
+    "/sales/": {
+      "filePath": "sales.index.tsx",
+      "parent": "/sales"
     }
   }
 }

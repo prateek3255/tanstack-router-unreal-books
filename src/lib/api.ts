@@ -37,34 +37,32 @@ type DashboardStats = {
     totalOverdue: number;
 };
 
-export const fetchInvoices = async ({
-  search,
-  filters,
-  sort,
-}: {
-  search?: string;
-  filters?: Array<Filter>;
-  sort?: Sort;
-}, abortController?: AbortController) => {
+type SearchFilters = {
+    search?: string;
+    filters?: Array<Filter>;
+    sort?: Sort;
+}
+
+export const fetchInvoices = async (searchFilters?: SearchFilters) => {
   const params = new URLSearchParams();
 
-  if (search) {
-    params.append("search", search);
+  if (searchFilters?.search) {
+    params.append("search", searchFilters.search);
   }
 
-  if (filters) {
+  if (searchFilters?.filters) {
     // Add array of string filters to query param
-    filters.forEach((filter) => {
+    searchFilters.filters.forEach((filter) => {
       params.append("filters", filter);
     });
   }
 
-  if (sort) {
-    params.append("sort", sort);
+  if (searchFilters?.sort) {
+    params.append("sort", searchFilters.sort);
   }
 
   return axiosInstance
-    .get<AllInvoicesResponse>("/invoices/all", { params, signal: abortController?.signal })
+    .get<AllInvoicesResponse>("/invoices/all", { params })
     .then(({ data }) => data);
 };
 
