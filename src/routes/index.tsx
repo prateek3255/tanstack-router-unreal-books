@@ -1,11 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CardContent, Card } from "@/components/ui/card";
+import { fetchDashboardStats } from "@/lib/api";
+import { Loader } from "@/components/ui/spinner";
 
 export const Route = createFileRoute("/")({
   component: Dashboard,
+  loader: () => fetchDashboardStats(),
+  staleTime: 10 * 1000,
+  pendingComponent: Loader
 });
 
 function Dashboard() {
+  const data = Route.useLoaderData();
   return (
     <main className="flex-1 bg-white p-6 pr-16">
       <div className="space-y-6">
@@ -18,10 +24,10 @@ function Dashboard() {
           </p>
         </div>
         <div className="grid grid-cols-4 gap-6">
-          <DashboardStatCard title="Total Revenue" value="$1200" icon={DollarSignIcon} />
-          <DashboardStatCard title="New Customers" value="23" icon={UsersIcon} />
-          <DashboardStatCard title="Invoices Paid" value="3" icon={CreditCardIcon} />
-          <DashboardStatCard title="Overdue Invoices" value="5" icon={ActivityIcon} />
+          <DashboardStatCard title="Total Revenue" value={`$${data.totalAmount}`} icon={DollarSignIcon} />
+          <DashboardStatCard title="New Customers" value={data.totalCustomers} icon={UsersIcon} />
+          <DashboardStatCard title="Invoices Paid" value={data.totalPaid} icon={CreditCardIcon} />
+          <DashboardStatCard title="Overdue Invoices" value={data.totalOverdue} icon={ActivityIcon} />
         </div>
       </div>
     </main>
