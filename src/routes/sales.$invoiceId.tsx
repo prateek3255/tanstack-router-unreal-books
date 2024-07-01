@@ -22,6 +22,7 @@ export const Route = createFileRoute("/sales/$invoiceId")({
 
 function Invoice() {
   const invoice = Route.useLoaderData();
+  const search = Route.useSearch();
   return (
     <>
       <Card>
@@ -47,7 +48,7 @@ function Invoice() {
       </Card>
 
       <Button className="w-full mt-4" asChild>
-        <Link to="/sales">
+        <Link to="/sales" search={search}>
           Clear
         </Link>
       </Button>

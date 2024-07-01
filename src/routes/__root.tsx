@@ -32,6 +32,14 @@ function RootComponent() {
                 activeProps={{
                   className: "bg-link-active",
                 }}
+                activeOptions={{
+                  includeSearch: false
+                }}
+                search={{
+                  filters: [],
+                  sort: "date-desc",
+                  search: "",
+                }}
               >
                 Sales
               </Link>

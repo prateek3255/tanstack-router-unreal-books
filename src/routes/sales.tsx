@@ -1,4 +1,6 @@
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import React from "react";
+import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
+import z from "zod";
 import { Button } from "@/components/ui/button";
 import { CardContent, Card } from "@/components/ui/card";
 import {
@@ -16,14 +18,84 @@ import { Badge } from "@/components/ui/badge";
 import { ALLOWED_FILTERS, ALLOWED_SORTS, Filter, Sort } from "@/types";
 import { fetchInvoices } from "@/lib/api";
 
+const salesSearchParams = z.object({
+  search: z.string().catch(""),
+  filters: z.enum(ALLOWED_FILTERS).array().catch([]),
+  sort: z.enum(ALLOWED_SORTS).catch("date-desc"),
+});
+
 export const Route = createFileRoute("/sales")({
   component: Sales,
-  loader: () => fetchInvoices(),
+  validateSearch: salesSearchParams,
+  loaderDeps: ({ search: { search, filters, sort } }) => ({
+    search,
+    filters,
+    sort,
+  }),
+  loader: ({ deps }) => fetchInvoices(deps),
   staleTime: 60 * 1000,
 });
 
+
 function Sales() {
   const { invoices, totalAmount, totalInvoices } = Route.useLoaderData();
+  const navigate = useNavigate();
+  const { filters, sort, search } = Route.useSearch();
+  const [searchQuery, setSearchQuery] = React.useState(search);
+  const deferredSearchQuery = React.useDeferredValue(searchQuery);
+
+  React.useEffect(() => {
+    navigate({
+      search: (prevSearch) => ({
+        ...prevSearch,
+        search: deferredSearchQuery,
+      }),
+      replace: true,
+    });
+  }, [deferredSearchQuery]);
+
+  const onFilterChange = (filter: Filter) => {
+    if (filters.includes(filter)) {
+      navigate({
+        search: (prevSearch) => ({
+          ...prevSearch,
+          filters:
+            "filters" in prevSearch
+              ? prevSearch.filters.filter((f) => f !== filter)
+              : [],
+        }),
+        replace: true,
+      });
+    } else {
+      navigate({
+        search: (prevSearch) => ({
+          ...prevSearch,
+          filters:
+          "filters" in prevSearch
+              ? [...prevSearch.filters, filter]
+              : [filter],
+        }),
+        replace: true,
+      });
+    }
+  };
+
+  const onSortChange = (sort: Sort) => {
+    navigate({
+      search: (prevSearch) => ({
+        ...prevSearch,
+        sort,
+      }),
+      replace: true,
+    });
+  };
+
+  const handleSearchQueryChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setSearchQuery(event.target.value);
+  };
+
   return (
     <div key="1" className="flex w-full h-full">
       <main className="flex-[6] bg-white p-6 w-[65%]">
@@ -42,14 +114,18 @@ function Sales() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline">
                     <FilterIcon className="mr-2 h-4 w-4" />
-                    Filters
+                    Filters {filters.length > 0 && `(${filters.length})`}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56 space-y-2 p-2">
                   <DropdownMenuLabel>Filter by:</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {ALLOWED_FILTERS.map((filter) => (
-                    <DropdownMenuCheckboxItem checked={false} key={filter}>
+                    <DropdownMenuCheckboxItem
+                      checked={filters.includes(filter)}
+                      onCheckedChange={() => onFilterChange(filter)}
+                      key={filter}
+                    >
                       <div className="flex items-center space-x-2">
                         <span>{FILTER_LABELS[filter]}</span>
                       </div>
@@ -67,7 +143,12 @@ function Sales() {
                 <DropdownMenuContent className="w-56 space-y-2 p-2">
                   <DropdownMenuLabel>Sort by:</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuRadioGroup>
+                  <DropdownMenuRadioGroup
+                    value={sort}
+                    onValueChange={(value) =>
+                      onSortChange(value as (typeof ALLOWED_SORTS)[number])
+                    }
+                  >
                     {ALLOWED_SORTS.map((sort) => (
                       <DropdownMenuRadioItem key={sort} value={sort}>
                         {SORT_LABELS[sort]}
@@ -80,6 +161,8 @@ function Sales() {
                 className="max-w-xs"
                 placeholder="Search invoices..."
                 type="search"
+                value={searchQuery}
+                onChange={handleSearchQueryChange}
               />
             </div>
           </div>
@@ -90,6 +173,11 @@ function Sales() {
                   className="border-b transition-colors hover:bg-muted/50 flex justify-between px-2 py-3"
                   to="/sales/$invoiceId"
                   params={{ invoiceId: invoice.id.toString() }}
+                  search={{
+                    filters,
+                    sort,
+                    search,
+                  }}
                   activeProps={{
                     className: "bg-muted",
                   }}
